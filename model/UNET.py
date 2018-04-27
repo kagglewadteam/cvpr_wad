@@ -15,6 +15,7 @@ from keras.backend import tensorflow_backend as KTF
 from gen_vis import TensorBoardWrapper
 # internal import
 from utils.loss import *
+from utils.gen_vis import TensorBoardWarpper
 
 
 class pil_image_awesome():
@@ -126,9 +127,9 @@ def train(cfg, train_generator, val_generator):
     callback_list = [EarlyStopping(monitor='val_loss', patience=10, verbose=1)]
     callback_list.append(ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=0, verbose=1))
     callback_list.append(ModelCheckpoint(weights_file, monitor='val_loss', verbose=1, period=1, save_best_only=True, save_weights_only=True))
-	#callback_list.append(TensorBoard(log_dir='./tensorboard/log', write_images=True, histogram_freq=0,write_images=True))
-    callback_list.append(TensorBoardWarpper(val_generator, nb_steps=1, log_dir='./tensorboard/log', histogram_freq=1,
-                               batch_size=cfg['batch_size'], write_graph=True, write_grads=True))  #visualize model 
+	callback_list.append(TensorBoard(log_dir='./tensorboard/log', write_images=False, histogram_freq=0))
+    #callback_list.append(TensorBoardWarpper(val_generator, nb_steps=1, log_dir='./tensorboard/log', histogram_freq=1,
+                               #batch_size=cfg['batch_size'], write_graph=True, write_grads=True))  #visualize model 
     # train model
     model.fit_generator(train_generator,
                         steps_per_epoch=2048 // cfg['batch_size'],
