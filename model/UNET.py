@@ -18,7 +18,6 @@ from keras.utils import multi_gpu_model
 from utils.loss import *
 from utils.gen_vis import TensorBoardWrapper
 
-
 class pil_image_awesome():
     @staticmethod
     def open(in_path):
