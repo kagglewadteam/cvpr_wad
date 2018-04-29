@@ -38,7 +38,7 @@ class pil_image_awesome():
 def train_generator(image_datagen, mask_datagen, batch_size):
     seed = 1
     image_flow = image_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_color', batch_size=batch_size, target_size=(384, 384), color_mode="rgb", class_mode=None, seed=seed)
-    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_label', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
+    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_label', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode="categorical", seed=seed)
     return zip(image_flow,label_flow)
     '''
     while True:
@@ -53,7 +53,7 @@ def train_generator(image_datagen, mask_datagen, batch_size):
 def val_generator(image_datagen, mask_datagen, batch_size):
     seed = 1
     image_flow = image_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_color', batch_size=batch_size, target_size=(384, 384), color_mode="rgb", class_mode=None, seed=seed)
-    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_label', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
+    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_label', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode="categorical", seed=seed)
     return zip(image_flow,label_flow)
     '''
     while True:
@@ -108,7 +108,7 @@ def create_model():
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(u9)
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(c9)
 
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9)
+    outputs = Conv2D(8, (1, 1), activation='sigmoid')(c9)
 
     model = Model(inputs=[inputs], outputs=[outputs])
     model.summary()
@@ -121,7 +121,7 @@ def train(cfg, train_generator, val_generator):
     #parallel_model = multi_gpu_model(model,gpus=3)
     model.compile(optimizer='adam',
                   loss=dice_coef_loss,
-                  metrics=[dice_coef, 'binary_accuracy', 'mse'])
+                  metrics=[dice_coef, 'categorical_accuracy', 'mse'])
 
     weights_file = cfg['model'] + '.h5'
 
