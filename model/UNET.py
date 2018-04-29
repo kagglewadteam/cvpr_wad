@@ -13,10 +13,13 @@ from PIL import Image
 from skimage.io import imread
 from keras.backend import tensorflow_backend as KTF
 from keras.utils import multi_gpu_model
+import numpy as np
 
 # internal import
 from utils.loss import *
 from utils.gen_vis import TensorBoardWrapper
+
+base_dir='/home/liuyn/masterthesis/kaggle_sampledata/'
 
 class pil_image_awesome():
     @staticmethod
@@ -33,13 +36,52 @@ class pil_image_awesome():
 
     fromarray = Image.fromarray
 
+def img_resize():
+    
+
+def custom_generator(color_dir,label_dir,batch_size,flag):
+    global batch_index_train
+    global batch_index_val
+    steps_per_epoch_train=1750 // batch_size
+    steps_per_epoch_val=194 // batch_size
+    if flag == 'train':
+       while True:
+           batch_X ,batch_y = [],[]
+           random.shuffle(train_list)
+           X_train = train_list[ batch_index_train*batch_size,(batch_index+1)*batch_size
+           for name in X_train:
+               img_X = base_dir+"train_label/image/"+name
+               batch_X.append(img_resize(img_X))
+               img_y =base_dir+"train_label/image/"+name[:-4]+"_instanceIds.png"
+               img_y = mask2onehot(img_y)
+               batch_y.append(img_resize(img_y)
+           batch_index_train = (batch_index_train+1)%steps_per_epoch_train
+           yield np.array(batch_X),np.array(batch_y) 
+    if flag == 'val':
+       while True:
+           random.shuffle(train_list)
+           X_train = train_list[batch_index*batch_size,(batch_index+1)*batch_size
+           for name in X_train:
+               img_X = base_dir+"train_label/image/"+name
+               batch_X.append(img_resize(img_X))
+               img_y =base_dir+"train_label/image/"+name[:-4]+"_instanceIds.png"
+               img_y = mask2onehot(img_y)
+               batch_y.append(img_resize(img_y)
+           batch_index_val = (batch_index_val+1)%steps_per_epoch_val
+           yield np.array(batch_X),np.array(batch_y) 
+       
+    
+
 
 # flow from train directory
 def train_generator(image_datagen, mask_datagen, batch_size):
     seed = 1
     image_flow = image_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_color', batch_size=batch_size, target_size=(384, 384), color_mode="rgb", class_mode=None, seed=seed)
-    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_label', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode="categorical", seed=seed)
-    return zip(image_flow,label_flow)
+    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_label1', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode="sparse", seed=seed)
+    for image_batch,label_batch in zip(image_flow,label_flow):
+        print(np.unique(label_batch[0]))
+        #print(np.unique(label_batch))
+        yield image_batch,label_batch
     '''
     while True:
         image_batch = next(image_flow)
@@ -53,8 +95,9 @@ def train_generator(image_datagen, mask_datagen, batch_size):
 def val_generator(image_datagen, mask_datagen, batch_size):
     seed = 1
     image_flow = image_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_color', batch_size=batch_size, target_size=(384, 384), color_mode="rgb", class_mode=None, seed=seed)
-    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_label', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode="categorical", seed=seed)
-    return zip(image_flow,label_flow)
+    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_label1', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
+    for image_batch,label_batch in zip(image_flow,label_flow):
+        yield image_batch,label_batch
     '''
     while True:
         image_batch = next(image_flow)
@@ -142,6 +185,13 @@ def train(cfg, train_generator, val_generator):
 
 
 def run(cfg):
+    #calculate the number of samples
+    global train_list = []
+    global val_list = []
+    for i in os.listdir(base_dir+'train_color/image'):
+        train_list.append(i)
+    for i in os.listdir(base_dir+'val_color/image'):
+        val_list.append(i)
     #allocate GPUS sources
     os.environ["CUDA_VISIBLE_DEVICES"] = "5,6,7"
     config = tf.ConfigProto()
