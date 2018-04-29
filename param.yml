@@ -1,5 +1,5 @@
 range: [-1, 1]
-batch_size: 160
+batch_size: 64
 lr: 0.001
 epoch: 100
 augmentation: false

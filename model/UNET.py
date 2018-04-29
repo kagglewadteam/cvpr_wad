@@ -116,10 +116,10 @@ def create_model():
 
 
 def train(cfg, train_generator, val_generator):
-    with tf.device('/cpu:0'):  #save parameters in cpu to avoid chaos
-         model = create_model()
-    parallel_model = multi_gpu_model(model,gpus=5)
-    parallel_model.compile(optimizer='adam',
+    #with tf.device('/cpu:0'):  #save parameters in cpu to avoid chaos
+    model = create_model()
+    #parallel_model = multi_gpu_model(model,gpus=3)
+    model.compile(optimizer='adam',
                   loss=dice_coef_loss,
                   metrics=[dice_coef, 'binary_accuracy', 'mse'])
 
@@ -133,7 +133,7 @@ def train(cfg, train_generator, val_generator):
     #callback_list.append(TensorBoardWrapper(val_generator, nb_steps=1, log_dir='./tensorboard/log', histogram_freq=1,
      #                          batch_size=cfg['batch_size'], write_graph=True, write_grads=True))  #visualize model 
     # train model
-    parallel_model.fit_generator(train_generator,
+    model.fit_generator(train_generator,
                         steps_per_epoch=1750 // cfg['batch_size'],
                         validation_data=val_generator,
                         validation_steps=194 // cfg['batch_size'],
@@ -143,7 +143,7 @@ def train(cfg, train_generator, val_generator):
 
 def run(cfg):
     #allocate GPUS sources
-    os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6,7"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "5,6,7"
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess =tf.Session(config = config)
