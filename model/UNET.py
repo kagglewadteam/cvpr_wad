@@ -36,10 +36,8 @@ class pil_image_awesome():
 
     fromarray = Image.fromarray
 
-def img_resize():
-    
 
-def custom_generator(color_dir,label_dir,batch_size,flag):
+def custom_generator(base_dir,batch_size,flag):
     global batch_index_train
     global batch_index_val
     steps_per_epoch_train=1750 // batch_size
@@ -48,13 +46,13 @@ def custom_generator(color_dir,label_dir,batch_size,flag):
        while True:
            batch_X ,batch_y = [],[]
            random.shuffle(train_list)
-           X_train = train_list[ batch_index_train*batch_size,(batch_index+1)*batch_size
+           X_train = train_list[batch_index_train*batch_size,(batch_index+1)*batch_size]
            for name in X_train:
-               img_X = base_dir+"train_label/image/"+name
-               batch_X.append(img_resize(img_X))
-               img_y =base_dir+"train_label/image/"+name[:-4]+"_instanceIds.png"
+               img_X = imread(base_dir+"train_color/image/"+name) #img_X has 4-D,and the last D is 255
+               batch_X.append(img_X[:,:,:3])
+               img_y =np.asarray(Image.open(base_dir+"train_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
                img_y = mask2onehot(img_y)
-               batch_y.append(img_resize(img_y)
+               batch_y.append(img_y)
            batch_index_train = (batch_index_train+1)%steps_per_epoch_train
            yield np.array(batch_X),np.array(batch_y) 
     if flag == 'val':
@@ -62,11 +60,11 @@ def custom_generator(color_dir,label_dir,batch_size,flag):
            random.shuffle(train_list)
            X_train = train_list[batch_index*batch_size,(batch_index+1)*batch_size
            for name in X_train:
-               img_X = base_dir+"train_label/image/"+name
-               batch_X.append(img_resize(img_X))
-               img_y =base_dir+"train_label/image/"+name[:-4]+"_instanceIds.png"
+               img_X = imread(base_dir+"val_color/image/"+name)
+               batch_X.append(img_X[:,:,:3])
+               img_y =np.asarray(Image.open(base_dir+"val_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
                img_y = mask2onehot(img_y)
-               batch_y.append(img_resize(img_y)
+               batch_y.append(img_y)
            batch_index_val = (batch_index_val+1)%steps_per_epoch_val
            yield np.array(batch_X),np.array(batch_y) 
        
@@ -151,7 +149,7 @@ def create_model():
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(u9)
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(c9)
 
-    outputs = Conv2D(8, (1, 1), activation='sigmoid')(c9)
+    outputs = Conv2D(8, (1, 1), activation='softmax')(c9) #use softmax to calculate the prob
 
     model = Model(inputs=[inputs], outputs=[outputs])
     model.summary()
@@ -201,6 +199,8 @@ def run(cfg):
     # handle the 16bit numbers
     KPImage.pil_image = pil_image_awesome
 
+	"""
+
     # data augmentation options
     data_gen_args = dict(horizontal_flip=True, zoom_range=0.05)
 
@@ -210,7 +210,8 @@ def run(cfg):
     else:
         image_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
         mask_datagen = ImageDataGenerator()
-
+	"""
     # train model
-    train(cfg, train_generator(image_datagen, mask_datagen, cfg['batch_size']), val_generator(image_datagen, mask_datagen, cfg['batch_size']))
+    #train(cfg, train_generator(image_datagen, mask_datagen, cfg['batch_size']), val_generator(image_datagen, mask_datagen, cfg['batch_size']))
+	train(cfg, custom_generator(base_dir,cfg['batch_size'],flag='train'),custom_generator(base_dir,cfg['batch_size'],flag='val'))
 

@@ -1,9 +1,11 @@
 import random
 import os
-from skimage.io import imread,imwrite
+from skimage.io import imread,imsave
+from skimage.transform import resize
+from PIL import Image
 import numpy as np
 
-
+'''
 def mask2onehot(label_path,flag):
     class_idx = [33, 34, 35, 36, 38, 39, 40]
     # class_dict = {'car':33,
@@ -33,6 +35,32 @@ def mask2onehot(label_path,flag):
 	imwrite(str(flag)+"_label//class_8//"+str(name),other_label)
 
     return 0
+	'''
+
+def mask2onehot(label_image):
+    class_idx = [33, 34, 35, 36, 38, 39, 40]
+    # class_dict = {'car':33,
+    #               'motorbicycle':34,
+    #               'bicycle':35,
+    #               'person':36,
+    #               'truck':38,
+    #               'bus':39,
+    #               'tricycle':40}
+    one_hot_label = []
+    other_label = np.zeros(shape=(2710, 3384)).astype(bool)
+
+    # 8 figures will popup
+    for index,idx in enumerate(class_idx):
+        mask = label_image == idx
+        other_label += mask
+        mask = mask.astype(int)
+        mask = mask.reshape(mask.shape + (1,))
+        one_hot_label.append(mask)
+    other_label = (1 - other_label.astype(int))
+    other_label = other_label.reshape(other_label.shape + (1,))
+    labels=np.concatenate(one_hot_label,axis=-1)
+    labels=np.concatenate([labels,other_label],axis=-1)
+    return labels
 
 
 def load_paths(data_dir, label_dir):
