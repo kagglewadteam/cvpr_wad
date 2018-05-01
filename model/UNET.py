@@ -13,13 +13,17 @@ from PIL import Image
 from skimage.io import imread
 from keras.backend import tensorflow_backend as KTF
 from keras.utils import multi_gpu_model
+import random
 import numpy as np
 
 # internal import
+from utils.DataPreprocessing import *
 from utils.loss import *
 from utils.gen_vis import TensorBoardWrapper
 
 base_dir='/home/liuyn/masterthesis/kaggle_sampledata/'
+batch_index_train = 0
+batch_index_val = 0
 
 class pil_image_awesome():
     @staticmethod
@@ -46,7 +50,7 @@ def custom_generator(base_dir,batch_size,flag):
        while True:
            batch_X ,batch_y = [],[]
            random.shuffle(train_list)
-           X_train = train_list[batch_index_train*batch_size,(batch_index+1)*batch_size]
+           X_train = train_list[batch_index_train*batch_size:(batch_index_train+1)*batch_size]
            for name in X_train:
                img_X = imread(base_dir+"train_color/image/"+name) #img_X has 4-D,and the last D is 255
                batch_X.append(img_X[:,:,:3])
@@ -57,9 +61,10 @@ def custom_generator(base_dir,batch_size,flag):
            yield np.array(batch_X),np.array(batch_y) 
     if flag == 'val':
        while True:
-           random.shuffle(train_list)
-           X_train = train_list[batch_index*batch_size,(batch_index+1)*batch_size
-           for name in X_train:
+           batch_X ,batch_y = [],[]
+           random.shuffle(val_list)
+           X_val = val_list[batch_index_val*batch_size:(batch_index_val+1)*batch_size]
+           for name in X_val:
                img_X = imread(base_dir+"val_color/image/"+name)
                batch_X.append(img_X[:,:,:3])
                img_y =np.asarray(Image.open(base_dir+"val_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
@@ -106,7 +111,7 @@ def val_generator(image_datagen, mask_datagen, batch_size):
 
 def create_model():
     # Build U-Net model
-    inputs = Input((384, 384, 3))
+    inputs = Input((2710, 3384, 3))
     s = BatchNormalization()(inputs) # we can learn the normalization step
     s = Dropout(0.5)(s)
 
@@ -184,14 +189,15 @@ def train(cfg, train_generator, val_generator):
 
 def run(cfg):
     #calculate the number of samples
-    global train_list = []
-    global val_list = []
+    global train_list
+    global val_list 
+    train_list,val_list=[],[]
     for i in os.listdir(base_dir+'train_color/image'):
         train_list.append(i)
     for i in os.listdir(base_dir+'val_color/image'):
         val_list.append(i)
     #allocate GPUS sources
-    os.environ["CUDA_VISIBLE_DEVICES"] = "5,6,7"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess =tf.Session(config = config)
@@ -199,7 +205,7 @@ def run(cfg):
     # handle the 16bit numbers
     KPImage.pil_image = pil_image_awesome
 
-	"""
+    """
 
     # data augmentation options
     data_gen_args = dict(horizontal_flip=True, zoom_range=0.05)
@@ -210,8 +216,8 @@ def run(cfg):
     else:
         image_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
         mask_datagen = ImageDataGenerator()
-	"""
+    """
     # train model
     #train(cfg, train_generator(image_datagen, mask_datagen, cfg['batch_size']), val_generator(image_datagen, mask_datagen, cfg['batch_size']))
-	train(cfg, custom_generator(base_dir,cfg['batch_size'],flag='train'),custom_generator(base_dir,cfg['batch_size'],flag='val'))
+    train(cfg, custom_generator(base_dir,cfg['batch_size'],flag='train'),custom_generator(base_dir,cfg['batch_size'],flag='val'))
 
