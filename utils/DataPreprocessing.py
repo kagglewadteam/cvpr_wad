@@ -47,7 +47,7 @@ def mask2onehot(label_image):
     #               'bus':39,
     #               'tricycle':40}
     one_hot_label = []
-    other_label = np.zeros(shape=(2710, 3384)).astype(bool)
+    other_label = np.zeros(shape=(384, 384)).astype(bool)
 
     # 8 figures will popup
     for index,idx in enumerate(class_idx):

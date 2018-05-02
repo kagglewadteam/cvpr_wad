@@ -21,7 +21,7 @@ from utils.DataPreprocessing import *
 from utils.loss import *
 from utils.gen_vis import TensorBoardWrapper
 
-base_dir='/home/liuyn/masterthesis/kaggle_sampledata/'
+base_dir='/home/liuyn/masterthesis/kaggle_sampledata/new'
 batch_index_train = 0
 batch_index_val = 0
 
@@ -44,8 +44,8 @@ class pil_image_awesome():
 def custom_generator(base_dir,batch_size,flag):
     global batch_index_train
     global batch_index_val
-    steps_per_epoch_train=1750 // batch_size
-    steps_per_epoch_val=194 // batch_size
+    steps_per_epoch_train=11206 // batch_size
+    steps_per_epoch_val=1316 // batch_size
     if flag == 'train':
        while True:
            batch_X ,batch_y = [],[]
@@ -53,8 +53,8 @@ def custom_generator(base_dir,batch_size,flag):
            X_train = train_list[batch_index_train*batch_size:(batch_index_train+1)*batch_size]
            for name in X_train:
                img_X = imread(base_dir+"train_color/image/"+name) #img_X has 4-D,and the last D is 255
-               batch_X.append(img_X[:,:,:3])
-               img_y =np.asarray(Image.open(base_dir+"train_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
+               batch_X.append(img_X)#[:,:,:3])
+               img_y =np.asarray(Image.open(base_dir+"train_label/label/"+name[:-4]+"_instanceIds.png"))//1000
                img_y = mask2onehot(img_y)
                batch_y.append(img_y)
            batch_index_train = (batch_index_train+1)%steps_per_epoch_train
@@ -66,8 +66,8 @@ def custom_generator(base_dir,batch_size,flag):
            X_val = val_list[batch_index_val*batch_size:(batch_index_val+1)*batch_size]
            for name in X_val:
                img_X = imread(base_dir+"val_color/image/"+name)
-               batch_X.append(img_X[:,:,:3])
-               img_y =np.asarray(Image.open(base_dir+"val_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
+               batch_X.append(img_X)#[:,:,:3])
+               img_y =np.asarray(Image.open(base_dir+"val_label/label/"+name[:-4]+"_instanceIds.png"))//1000
                img_y = mask2onehot(img_y)
                batch_y.append(img_y)
            batch_index_val = (batch_index_val+1)%steps_per_epoch_val
@@ -111,7 +111,7 @@ def val_generator(image_datagen, mask_datagen, batch_size):
 
 def create_model():
     # Build U-Net model
-    inputs = Input((2710, 3384, 3))
+    inputs = Input((384, 384, 3))
     s = BatchNormalization()(inputs) # we can learn the normalization step
     s = Dropout(0.5)(s)
 
@@ -180,9 +180,9 @@ def train(cfg, train_generator, val_generator):
      #                          batch_size=cfg['batch_size'], write_graph=True, write_grads=True))  #visualize model 
     # train model
     model.fit_generator(train_generator,
-                        steps_per_epoch=1750 // cfg['batch_size'],
+                        steps_per_epoch=11206 // cfg['batch_size'],
                         validation_data=val_generator,
-                        validation_steps=194 // cfg['batch_size'],
+                        validation_steps=1316 // cfg['batch_size'],
                         epochs=cfg['epoch'],
                         callbacks=callback_list)
 
@@ -203,7 +203,7 @@ def run(cfg):
     sess =tf.Session(config = config)
     KTF.set_session(sess)
     # handle the 16bit numbers
-    KPImage.pil_image = pil_image_awesome
+    #KPImage.pil_image = pil_image_awesome
 
     """
 
