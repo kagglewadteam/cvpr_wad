@@ -21,7 +21,7 @@ from utils.DataPreprocessing import *
 from utils.loss import *
 from utils.gen_vis import TensorBoardWrapper
 
-base_dir='/home/liuyn/masterthesis/kaggle_sampledata/new'
+base_dir='/home/liuyn/masterthesis/kaggle_sampledata/new/'
 batch_index_train = 0
 batch_index_val = 0
 
