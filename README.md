@@ -22,7 +22,7 @@ Make sure Keras 2.1.3 or higher is installed.<br />
 生成annotation的函数我已经写好在create_annotation_demo.py<br />
 函数需要两个输入,第一个是path_to_img是图片路径,第二个是path_to_label是对应的标签路径， 返回一个list of string格式如下<br />
 ```
-#x1,x2是bounding box的横坐标，y1，y2是纵坐标， 
+#x1,x2是bounding box的横坐标，y1，y2是纵坐标，x1<x2, y1<y2 
 path/to/image.jpg,x1,y1,x2,y2,class_name
 
 #这是为一张图片生成的annotation
