@@ -95,7 +95,7 @@ keras_retinanet/bin/train.py csv /path/to/csv/file/containing/annotations /path/
 
 #这是我执行用的代码
 cd keras_retinanet/bin/
-python train.py --annotations csv annotation.csv class_map.csv
+python train.py csv annotation.csv class_map.csv
 
 #debug.py可以检查annotation是否正确，它就把图片显示并把object框出来
 python debug.py --annotations csv annotation.csv class_map.csv
