@@ -80,8 +80,8 @@ def custom_generator(base_dir,batch_size,flag):
 def train_generator(image_datagen, mask_datagen, batch_size):
     seed = 1
     image_flow = image_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_color', batch_size=batch_size, target_size=(384, 384), color_mode="rgb", class_mode=None, seed=seed)
-    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_label1/class_1', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
-	return zip(image_flow,label_flow)
+    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/train_label/class_8', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
+    return zip(image_flow,label_flow)
     #for image_batch,label_batch in zip(image_flow,label_flow):
         #print(np.unique(label_batch[0]))
         #print(np.unique(label_batch))
@@ -99,8 +99,8 @@ def train_generator(image_datagen, mask_datagen, batch_size):
 def val_generator(image_datagen, mask_datagen, batch_size):
     seed = 1
     image_flow = image_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_color', batch_size=batch_size, target_size=(384, 384), color_mode="rgb", class_mode=None, seed=seed)
-    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_label1', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
-	return zip(image_flow,label_flow)
+    label_flow = mask_datagen.flow_from_directory('/home/liuyn/masterthesis/kaggle_sampledata/val_label/class_8', batch_size=batch_size, target_size=(384, 384), color_mode="grayscale", class_mode=None, seed=seed)
+    return zip(image_flow,label_flow)
     #for image_batch,label_batch in zip(image_flow,label_flow):
         #yield image_batch,label_batch
     '''
@@ -156,7 +156,7 @@ def create_model():
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(u9)
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(c9)
 
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9) #use softmax to calculate the prob
+    outputs = Conv2D(8, (1, 1), activation='softmax')(c9) #use softmax to calculate the prob
 
     model = Model(inputs=[inputs], outputs=[outputs])
     model.summary()
@@ -169,9 +169,9 @@ def train(cfg, train_generator, val_generator):
     #parallel_model = multi_gpu_model(model,gpus=3)
     model.compile(optimizer='adam',
                   loss=dice_coef_loss,
-                  metrics=[dice_coef, 'binary_accuracy', 'mse'])
+                  metrics=[dice_coef, 'categorical_accuracy', 'mse'])
 
-    weights_file = cfg['model'] + '_class1.h5'
+    weights_file = cfg['model'] + '_category.h5'
 
     # define callback function
     callback_list = [EarlyStopping(monitor='val_loss', patience=10, verbose=1)]
@@ -182,15 +182,15 @@ def train(cfg, train_generator, val_generator):
      #                          batch_size=cfg['batch_size'], write_graph=True, write_grads=True))  #visualize model 
     # train model
     model.fit_generator(train_generator,
-                        steps_per_epoch=1750 // cfg['batch_size'], #11206
+                        steps_per_epoch=11206 // cfg['batch_size'], #1750
                         validation_data=val_generator,
-                        validation_steps=195 // cfg['batch_size'], #1316
+                        validation_steps=1316 // cfg['batch_size'], #195
                         epochs=cfg['epoch'],
                         callbacks=callback_list)
 
 
 def run(cfg):
-	'''
+    
     #calculate the number of samples
     global train_list
     global val_list 
@@ -199,13 +199,14 @@ def run(cfg):
         train_list.append(i)
     for i in os.listdir(base_dir+'val_color/image'):
         val_list.append(i)
-	'''
+    
     #allocate GPUS sources
-    os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+    os.environ["CUDA_VISIBLE_DEVICES"] = '4'
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess =tf.Session(config = config)
     KTF.set_session(sess)
+    '''
     # handle the 16bit numbers
     KPImage.pil_image = pil_image_awesome
 
@@ -220,9 +221,10 @@ def run(cfg):
     else:
         image_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
         mask_datagen = ImageDataGenerator()
-    
+    '''
     # train model
-    train(cfg, train_generator(image_datagen, mask_datagen, cfg['batch_size']), val_generator(image_datagen, mask_datagen, cfg['batch_size']))
-	print("model class 1 finished")
-    #train(cfg, custom_generator(base_dir,cfg['batch_size'],flag='train'),custom_generator(base_dir,cfg['batch_size'],flag='val'))
+    #train(cfg, train_generator(image_datagen, mask_datagen, cfg['batch_size']), val_generator(image_datagen, mask_datagen, cfg['batch_size']))
+    #print("model class 8 finished")
+    train(cfg, custom_generator(base_dir,cfg['batch_size'],flag='train'),custom_generator(base_dir,cfg['batch_size'],flag='val'))
+    print("model category finished")
 	
