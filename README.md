@@ -17,16 +17,21 @@ Make sure tensorflow is installed<br />
 Make sure Keras 2.1.3 or higher is installed.<br />
 
 ## 生成 annotation 和 class map<br />
-需要生成两个csv文件， class_map.csv 我已经上传了<br />
+需要生成两个csv文件， [class_map.csv](https://github.com/kagglewadteam/cvpr_wad/blob/wangmn/class_map.csv) 我已经上传了<br />
 还需要生成annotation.csv<br />
 生成annotation的函数我已经写好在create_annotation_demo.py<br />
-函数需要两个输入,第一个是path_to_img是图片路径,第二个是path_to_label是对应的标签路径， 返回一个string格式如下<br />
+函数需要两个输入,第一个是path_to_img是图片路径,第二个是path_to_label是对应的标签路径， 返回一个list of string格式如下<br />
 ```
 #x1,x2是bounding box的横坐标，y1，y2是纵坐标， 
 path/to/image.jpg,x1,y1,x2,y2,class_name
 
-#例如
+#这是为一张图片生成的annotation
 train_img/170908_072650121_Camera_5.jpg,2215,1715,2258,1724,car
+train_img/170908_072650121_Camera_5.jpg,2771,1723,2782,1736,car
+train_img/170908_072650121_Camera_5.jpg,2751,1725,2771,1742,car
+train_img/170908_072650121_Camera_5.jpg,2723,1717,2736,1731,car
+train_img/170908_072650121_Camera_5.jpg,2749,1721,2760,1733,car
+train_img/170908_072650121_Camera_5.jpg,2047,1692,2132,1727,truck
 ```
 你们需要写个代码，循环所有的训练图片的标签，生成完整的annotation.csv<br />
 
@@ -36,7 +41,7 @@ https://github.com/wangmn93/keras-retinanet/blob/master/README.md#csv-datasets
 ## 使用自己的dataset训练<br />
 我已经试过这个模型可以跑，下面是我的 keras-retinanet/keras_retinanet/bin 文件夹结构， <br />
 训练前需要添加的文件和文件夹我用 :heart: 标出了，<br /> 
-两个CSV文件annotation.csv和class_map.csv需要放在文件夹下<br />
+两个CSV文件annotation.csv和[class_map.csv](https://github.com/kagglewadteam/cvpr_wad/blob/wangmn/class_map.csv)需要放在文件夹下<br />
 需要把训练用的图片放在对应文件夹里，我的文件夹叫train_img，如果要改成别的名字要和annotation.csv里对应<br />
 例如我的annotation.csv内容如下<br/>
 ```
