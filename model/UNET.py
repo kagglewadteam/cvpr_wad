@@ -76,7 +76,7 @@ def custom_generator(base_dir,batch_size,flag):
 
 def resize_generator(base_dir,batch_size,flag,cls):
     class_idx = [33, 34, 35, 36, 38, 39, 40]
-	global batch_index_train
+    global batch_index_train
     global batch_index_val
     steps_per_epoch_train=1750 // batch_size
     steps_per_epoch_val=195 // batch_size
@@ -90,7 +90,7 @@ def resize_generator(base_dir,batch_size,flag,cls):
 			   img_X=scipy.misc.imresize(img_X[:,:,:3],[384,384])
                batch_X.append(img_X)#[:,:,:3])
                img_y =np.asarray(Image.open(base_dir+"train_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
-			   img_y = img_y == class_idx[cls]
+	           img_y = img_y == class_idx[cls]
 			   img_y=img_y.astype(int)
 			   img_y=scipy.misc.imresize(img_y,[384,384])
 			   img_y=img_y>0
