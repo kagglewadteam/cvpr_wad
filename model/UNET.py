@@ -87,14 +87,14 @@ def resize_generator(base_dir,batch_size,flag,cls):
            X_train = train_list[batch_index_train*batch_size:(batch_index_train+1)*batch_size]
            for name in X_train:
                img_X = imread(base_dir+"train_color/image/"+name) #img_X has 4-D,and the last D is 255
-			   img_X = scipy.misc.imresize(img_X[:,:,:3],[384,384])
+               img_X = scipy.misc.imresize(img_X[:,:,:3],[384,384])
                batch_X.append(img_X)#[:,:,:3])
                img_y =np.asarray(Image.open(base_dir+"train_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
-	           img_y = img_y == class_idx[cls]
-			   img_y=img_y.astype(int)
-			   img_y=scipy.misc.imresize(img_y,[384,384])
-			   img_y=img_y>0
-			   img_y=img_y.astype(int)
+	       img_y = img_y == class_idx[cls]
+               img_y=img_y.astype(int)
+               img_y=scipy.misc.imresize(img_y,[384,384])
+               img_y=img_y>0
+               img_y=img_y.astype(int)
                batch_y.append(img_y)
            batch_index_train = (batch_index_train+1)%steps_per_epoch_train
            yield np.array(batch_X),np.array(batch_y) 
@@ -105,14 +105,14 @@ def resize_generator(base_dir,batch_size,flag,cls):
            X_val = val_list[batch_index_val*batch_size:(batch_index_val+1)*batch_size]
            for name in X_val:
                img_X = imread(base_dir+"val_color/image/"+name)
-			   img_X=scipy.misc.imresize(img_X[:,:,:3],[384,384])
+               img_X=scipy.misc.imresize(img_X[:,:,:3],[384,384])
                batch_X.append(img_X)#[:,:,:3])
                img_y =np.asarray(Image.open(base_dir+"val_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
-			   img_y = img_y == class_idx[cls]
-			   img_y=img_y.astype(int)
-			   img_y=scipy.misc.imresize(img_y,[384,384])
-			   img_y=img_y>0
-			   img_y=img_y.astype(int)
+               img_y = img_y == class_idx[cls]
+               img_y=img_y.astype(int)
+               img_y=scipy.misc.imresize(img_y,[384,384])
+               img_y=img_y>0
+               img_y=img_y.astype(int)
                batch_y.append(img_y)
            batch_index_val = (batch_index_val+1)%steps_per_epoch_val
            yield np.array(batch_X),np.array(batch_y)
@@ -271,6 +271,6 @@ def run(cfg):
     # train model
     #train(cfg, train_generator(image_datagen, mask_datagen, cfg['batch_size']), val_generator(image_datagen, mask_datagen, cfg['batch_size']))
     #print("model class 8 finished")
-    train(cfg, custom_generator(base_dir,cfg['batch_size'],flag='train',cls=0),custom_generator(base_dir,cfg['batch_size'],flag='val',cls=0))
+    train(cfg, resize_generator(base_dir,cfg['batch_size'],flag='train',cls=0),resize_generator(base_dir,cfg['batch_size'],flag='val',cls=0))
     print("model new class1 finished")
 	
