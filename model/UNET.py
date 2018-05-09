@@ -156,7 +156,7 @@ def create_model():
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(u9)
     c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(c9)
 
-    outputs = Conv2D(8, (1, 1), activation='softmax')(c9) #use softmax to calculate the prob
+    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9) #use softmax to calculate the prob
 
     model = Model(inputs=[inputs], outputs=[outputs])
     model.summary()
@@ -171,13 +171,13 @@ def train(cfg, train_generator, val_generator):
                   loss=dice_coef_loss,
                   metrics=[dice_coef, 'categorical_accuracy', 'mse'])
 
-    weights_file = cfg['model'] + '_category.h5'
+    weights_file = cfg['model'] + '_category_sig.h5'
 
     # define callback function
     callback_list = [EarlyStopping(monitor='val_loss', patience=10, verbose=1)]
     callback_list.append(ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=0, verbose=1))
     callback_list.append(ModelCheckpoint('/net/pasnas01/pool1/liuyn/competitions/models/'+weights_file, monitor='val_loss', verbose=1, period=1, save_best_only=True, save_weights_only=True))
-    callback_list.append(TensorBoard(log_dir='./tensorboard/log', write_images=False, histogram_freq=0))
+    callback_list.append(TensorBoard(log_dir='./tensorboard/UNET/categorical', write_images=False, histogram_freq=0))
     #callback_list.append(TensorBoardWrapper(val_generator, nb_steps=1, log_dir='./tensorboard/log', histogram_freq=1,
      #                          batch_size=cfg['batch_size'], write_graph=True, write_grads=True))  #visualize model 
     # train model
