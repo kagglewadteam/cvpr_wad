@@ -87,7 +87,7 @@ def resize_generator(base_dir,batch_size,flag,cls):
            X_train = train_list[batch_index_train*batch_size:(batch_index_train+1)*batch_size]
            for name in X_train:
                img_X = imread(base_dir+"train_color/image/"+name) #img_X has 4-D,and the last D is 255
-			   img_X=scipy.misc.imresize(img_X[:,:,:3],[384,384])
+			   img_X = scipy.misc.imresize(img_X[:,:,:3],[384,384])
                batch_X.append(img_X)#[:,:,:3])
                img_y =np.asarray(Image.open(base_dir+"train_label1/label/"+name[:-4]+"_instanceIds.png"))//1000
 	           img_y = img_y == class_idx[cls]
