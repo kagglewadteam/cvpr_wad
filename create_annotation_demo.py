@@ -1,5 +1,8 @@
 from skimage.io import imread
 import numpy as np
+import pandas as pd
+import os
+from tqdm import tqdm
 
 class_idx = [33, 34, 35, 36, 38, 39, 40]
 class_dict = {33: 'car',
@@ -45,6 +48,7 @@ def create_annotation(path_to_img, path_to_label):
 
 
 if __name__ == '__main__':
+    '''
     data_dir = 'train/train_color/'
     label_dir = 'train_label/'
     img_name = '170908_072650121_Camera_5'
@@ -53,3 +57,13 @@ if __name__ == '__main__':
     path_to_label = label_dir + l_name + '.png'
     for s in create_annotation(path_to_img, path_to_label):
         print s
+    '''
+    base_dir='E:/FILES/data/'
+    annotation_set=[]
+    for img in tqdm(os.listdir(base_dir+'train_color/image')):
+        path_to_img=base_dir+'train_color/image/'+ img
+        path_to_label=base_dir+'train_label1/label/'+img[:-4]+'_instanceIds.png'
+        annotation=create_annotation(path_to_img,path_to_label)
+        annotation_set.extend(annotation)
+    annote_set=pd.DataFrame(annotation_set)
+    annote_set.to_csv("./annotations.csv",index=False,header=False)
