@@ -19,10 +19,10 @@ def bbox2(img):
     rmin, rmax = np.where(rows)[0][[0, -1]]
     cmin, cmax = np.where(cols)[0][[0, -1]]
 
-    if rmin == rmax:
-        rmax +=1
-    if cmin == cmax:
-        cmax +=1
+	if rmin == rmax:
+		rmax +=1
+	if cmin == cmax:
+		cmax +=1
 
     return rmin, rmax, cmin, cmax
 
