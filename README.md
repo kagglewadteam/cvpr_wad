@@ -1,8 +1,8 @@
 # MASK_rcnn_train_custom_data
 ## Procedure
--clone and install the mask rcnn
--copy the file kaggle_wad to the samples
--run the train
+- clone and install the mask rcnn
+- copy the file kaggle_wad to the samples
+- run the train
 
 ## Install
 git clone https://github.com/matterport/Mask_RCNN.git <br />
