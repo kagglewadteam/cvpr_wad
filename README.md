@@ -23,7 +23,7 @@ and see https://github.com/matterport/Mask_RCNN#installation
 &nbsp;    └── nucleus<br />
 &nbsp;    └── shapes<br />
 
-the files with heart are newly added, dont have to download the mask_rcnn_coco.h5<br />
+the files with heart are newly added, kaggle_wad can be copied from my branch. Not neccessary to download the mask_rcnn_coco.h5<br />
 it can be downloaded automatically.
 
 ## Training
