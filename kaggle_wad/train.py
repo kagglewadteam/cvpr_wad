@@ -12,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import scipy.misc
 from PIL import Image
+import warnings
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
@@ -44,7 +45,7 @@ class ShapesConfig(Config):
 
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 4 (GPUs * images/GPU).
-    GPU_COUNT = 1
+    GPU_COUNT = 2
     IMAGES_PER_GPU = 4
 
     # Number of classes (including background)
@@ -63,10 +64,10 @@ class ShapesConfig(Config):
     #TRAIN_ROIS_PER_IMAGE = 32
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 4000
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 5
+    VALIDATION_STEPS = 200
     
     iter_num=0
 
@@ -212,22 +213,23 @@ class WadDataset(utils.Dataset):
 ############################################################
 #  Training
 ############################################################
-#os.environ['CUDA_VISIBLE_DEVICES'] ='7'
+os.environ['CUDA_VISIBLE_DEVICES'] ='4,5'
 if __name__ == '__main__':
+    warnings.filterwarnings("ignore")
     #set up all the Config
     config = ShapesConfig()
     config.display()
     
     #train_address
-    img_floder='D:/LAB/cvpr_data/train/train_color'
-    mask_floder='D:/LAB/cvpr_data/train/train_label'
+    img_floder='/net/pasnas01/pool1/liuyn/competitions/data/train_color'
+    mask_floder='/net/pasnas01/pool1/liuyn/competitions/data/train_label'
     imglist=[]
     for i in os.listdir(img_floder):
         imglist.append(i)
 
     # Validation address
-    img_val_floder='D:/LAB/cvpr_data/train/val_color'
-    mask_val_floder='D:/LAB/cvpr_data/train/val_label'
+    img_val_floder='/net/pasnas01/pool1/liuyn/competitions/data/val_color'
+    mask_val_floder='/net/pasnas01/pool1/liuyn/competitions/data/val_label'
     vallist=[]
     for i in os.listdir(img_val_floder):
         vallist.append(i)
@@ -268,5 +270,5 @@ if __name__ == '__main__':
     # which layers to train by name pattern.
     model.train(dataset_train, dataset_val, 
                 learning_rate=config.LEARNING_RATE, 
-                epochs=10, 
+                epochs=50, 
                 layers='heads')
