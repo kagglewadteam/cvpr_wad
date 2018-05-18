@@ -5,7 +5,7 @@ import math
 import re
 import time
 import numpy as np
-import cv2
+import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
 import scipy.misc
@@ -14,12 +14,11 @@ from train import ShapesConfig,WadDataset,get_ax
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
-test_floder='D:/LAB/cvpr_data/train/val_color'
-test_mask_floder='D:/LAB/cvpr_data/train/val_label'
-testlist=[]
-for i in os.listdir(test_floder):
-    testlist.append(i)
+test_floder='/home/liuyn/masterthesis/kaggle_sampledata/test'
+#test_mask_floder='D:/LAB/cvpr_data/train/val_label'
 
+img_ids = next(os.walk(test_floder))[2]
+print("test samples has ",len(img_ids))
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -27,17 +26,22 @@ from mrcnn.config import Config
 from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
-from mrcnn.model import log
+#from mrcnn.model import log
+import result
 
 # Directory to save logs and trained model
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
 # Local path to trained weights file
-COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
+MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_shapes_0032.h5")
 # Download COCO trained weights from Releases if needed
-if not os.path.exists(COCO_MODEL_PATH):
-    utils.download_trained_weights(COCO_MODEL_PATH)
+if not os.path.exists(MODEL_PATH):
+    print("wrong")#utils.download_trained_weights(MODEL_PATH)
 
+
+#detection start
+
+os.environ['CUDA_VISIBLE_DEVICES'] ='1'
 
 class InferenceConfig(ShapesConfig):
     GPU_COUNT = 1
@@ -51,37 +55,22 @@ inference_config.display()
 model = modellib.MaskRCNN(mode="inference", 
                           config=inference_config,
                           model_dir=MODEL_DIR)
-
-# Get path to saved weights
-# Either set a specific path or find last trained weights
-# model_path = os.path.join(ROOT_DIR, ".h5 file name here")
-#model_path = model.find_last()[1]
-
 # Load trained weights (fill in path to trained weights here)
-#assert model_path != "", "Provide path to trained weights"
-#print("Loading weights from ", model_path)
-model.load_weights(COCO_MODEL_PATH, by_name=True,exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", 
-                                    "mrcnn_bbox", "mrcnn_mask"])
+model.load_weights(MODEL_PATH, by_name=True)
 
 # testing dataset
-dataset_test = WadDataset()
-dataset_test.load_shapes(100,inference_config.IMAGE_SHAPE[0],inference_config.IMAGE_SHAPE[1],test_floder,test_mask_floder,testlist)
-dataset_test.prepare()
+results=[]
+for i in tqdm(range(len(test_list))):
+    image=skimage.io.imread(os.path.join(test_floder, img_ids[i]))
+    results.append(model.detect([image], verbose=1))
+    results[i][0]['img_id']=img_ids[i]
 
-# Test on a random image
-image_id = random.choice(dataset_test.image_ids)
-original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-    modellib.load_image_gt(dataset_test, inference_config, image_id, use_mini_mask=False)
-
-log("original_image", original_image)
-log("image_meta", image_meta)
-log("gt_class_id", gt_class_id)
-log("gt_bbox", gt_bbox)
-log("gt_mask", gt_mask)
+#write to csv
+result.write_csv(results)
 '''
-visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,dataset_train.class_names, figsize=(8, 8))
-'''
+visulizing data
 results = model.detect([original_image], verbose=1)
 
 r = results[0]
 visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],dataset_test.class_names, r['scores'], ax=get_ax())
+'''
