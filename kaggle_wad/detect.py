@@ -11,11 +11,12 @@ import matplotlib.pyplot as plt
 import scipy.misc
 from PIL import Image
 from train import ShapesConfig,WadDataset,get_ax
+from tqdm import tqdm
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
-test_floder='/home/liuyn/masterthesis/kaggle_sampledata/test'
-#test_mask_floder='D:/LAB/cvpr_data/train/val_label'
+#test_floder='/home/liuyn/masterthesis/kaggle_sampledata/test'
+test_floder='D:/LAB/cvpr_data/test'
 
 img_ids = next(os.walk(test_floder))[2]
 print("test samples has ",len(img_ids))
@@ -33,7 +34,7 @@ import result
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
 # Local path to trained weights file
-MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_shapes_0032.h5")
+MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_shapes_0022.h5")
 # Download COCO trained weights from Releases if needed
 if not os.path.exists(MODEL_PATH):
     print("wrong")#utils.download_trained_weights(MODEL_PATH)
@@ -59,14 +60,12 @@ model = modellib.MaskRCNN(mode="inference",
 model.load_weights(MODEL_PATH, by_name=True)
 
 # testing dataset
-results=[]
-for i in tqdm(range(len(test_list))):
+for i in tqdm(range(len(img_ids))):
     image=skimage.io.imread(os.path.join(test_floder, img_ids[i]))
-    results.append(model.detect([image], verbose=1))
-    results[i][0]['img_id']=img_ids[i]
-
-#write to csv
-result.write_csv(results)
+    results=model.detect([image], verbose=1)
+    results[0]['img_id']=img_ids[i]
+    #write to csv
+    result.write_csv(results,i)
 '''
 visulizing data
 results = model.detect([original_image], verbose=1)

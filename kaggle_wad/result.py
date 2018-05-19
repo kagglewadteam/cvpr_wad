@@ -50,9 +50,9 @@ def count_mask_pixels(mask):
 def run_length_encoding(mask): #2D mask
     str = ""
     mask_array = mask.flatten()
-    print(mask_array)
+    #print(mask_array)
     res = np.where(mask_array == 1)[0]
-    print(res)
+    #print(res)
     start = res[0]
     length = 1
     for i in range(1, res.shape[0]):
@@ -60,7 +60,7 @@ def run_length_encoding(mask): #2D mask
             length += 1
         else:
             str = str + "{} {}|".format(start, length)
-            print("str:", str)
+            #print("str:", str)
             length = 1
             start = res[i]
     str = str + "{} {}|".format(start, length)
@@ -74,25 +74,27 @@ def get_csv_result(result):
     csv_row = [{"ImageId" : aabcdefg, "LabelId":xxx, "Confidence":xxx, "PixelCount" : xxx, "EncodedPixels" : xxx},
                {"ImageId" : aabcdefg, "LabelId":xxx, "Confidence":xxx, "PixelCount" : xxx, "EncodedPixels" : xxx}, ...]
     """
-    for j in range(len(result)):
-        item=result[j][0]
-        for i in range(item["rois"].shape[0]):
-            row_item_dict = {}
-            row_item_dict["ImageId"] = item["img_id"]
-            row_item_dict["LabelId"] = class_names[item["class_ids"][i]]
-            row_item_dict["Confidence"] = item["scores"][i]
-            #TODO check the mask implementation
-            mask = item["masks"][:,:,i]
-            mask = mask.reshape(mask.shape[:2])
-            row_item_dict["PixelCount"] = count_mask_pixels(mask)
-            row_item_dict["EncodedPixels"] = run_length_encoding(mask)
-            csv_rows.append(row_item_dict)
+    item=result[0]
+    for i in range(item["rois"].shape[0]):
+        row_item_dict = {}
+        row_item_dict["ImageId"] = item["img_id"]
+        row_item_dict["LabelId"] = class_names[item["class_ids"][i]]
+        row_item_dict["Confidence"] = item["scores"][i]
+        #TODO check the mask implementation
+        mask = item["masks"][:,:,i]
+        mask = mask.reshape(mask.shape[:2])
+        row_item_dict["PixelCount"] = count_mask_pixels(mask)
+        row_item_dict["EncodedPixels"] = run_length_encoding(mask)
+        csv_rows.append(row_item_dict)
 
     return csv_rows
 
-def write_csv(result):
+def write_csv(result,i):
     csv_rows = get_csv_result(result)
     df_res = pd.DataFrame(csv_rows)
     df_res = df_res[["ImageId", "LabelId", "PixelCount", "Confidence", "EncodedPixels"]]
+    if i !=0:
+        temp=pd.read_csv("./mask_rcnn.csv")
+        df_res = pd.concat([df_res,temp],axis=0)
     df_res.to_csv("mask_rcnn.csv", index = None)
 
