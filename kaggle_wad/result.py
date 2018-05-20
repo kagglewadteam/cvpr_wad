@@ -67,7 +67,7 @@ def run_length_encoding(mask): #2D mask
     return str
 
 def get_csv_result(result):
-    class_names=['BG','car','motorbicycle','bicycle','person','truck','bus','tricycle']
+    class_names=['BG',33,34,35,36,38,39,40]
     csv_rows = []    #dict in a list, can use pd data frame
     """
     one dict item is just one object instance
@@ -92,9 +92,13 @@ def get_csv_result(result):
 def write_csv(result,i):
     csv_rows = get_csv_result(result)
     df_res = pd.DataFrame(csv_rows)
-    df_res = df_res[["ImageId", "LabelId", "PixelCount", "Confidence", "EncodedPixels"]]
-    if i !=0:
-        temp=pd.read_csv("./mask_rcnn.csv")
-        df_res = pd.concat([df_res,temp],axis=0)
-    df_res.to_csv("mask_rcnn.csv", index = None)
+    #print(df_res)
+    if len(["ImageId", "LabelId", "PixelCount", "Confidence", "EncodedPixels"]) == len(df_res.keys()):
+        df_res = df_res[["ImageId", "LabelId","Confidence", "PixelCount", "EncodedPixels"]]
+        if i !=0:
+            temp=pd.read_csv("./mask_rcnn.csv")
+            df_res = pd.concat([df_res,temp],axis=0)
+        df_res.to_csv("mask_rcnn.csv", index = None)
+    else:
+        return 0
 
