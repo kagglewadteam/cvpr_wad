@@ -1,6 +1,10 @@
 # MASK_rcnn_train_custom_data
 ## Installation
-see https://github.com/matterport/Mask_RCNN#installation
+1. clone this repo: 
+```
+git clone git@github.com:kagglewadteam/cvpr_wad.git --recursive
+```
+2. see https://github.com/matterport/Mask_RCNN#installation
 ## Directory Structure
 .<br />
 ├─assets<br />
