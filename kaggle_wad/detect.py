@@ -63,7 +63,7 @@ model.load_weights(MODEL_PATH, by_name=True)
 for i in tqdm(range(len(img_ids))):
     image=skimage.io.imread(os.path.join(test_floder, img_ids[i]))
     results=model.detect([image], verbose=1)
-    results[0]['img_id']=img_ids[i]
+    results[0]['img_id']=img_ids[i][:-4]
     #write to csv
     result.write_csv(results,i)
 '''
