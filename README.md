@@ -1,12 +1,6 @@
 # MASK_rcnn_train_custom_data
-## Procedure
-- clone and install the mask rcnn
-- copy the file kaggle_wad to the samples
-- run the train
-
-## Install
-git clone https://github.com/matterport/Mask_RCNN.git <br />
-and see https://github.com/matterport/Mask_RCNN#installation
+## Installation
+see https://github.com/matterport/Mask_RCNN#installation
 ## Directory Structure
 .<br />
 ├─assets<br />
@@ -27,14 +21,14 @@ the files with heart are newly added, kaggle_wad can be copied from my branch. N
 it can be downloaded automatically.
 
 ## Training
-cd into the directory<br />
-```
-cd kaggle_wad
+cd into the `kaggle_wad` directory<br />
+```bash
+cd Mask_RCNN/samples/kaggle_wad
 python3 train.py
 ```
 one thing should be noticed that your own directories of images and masks should be defined in the train.py
 
-# Tuning hyper-parameters
+## Tuning hyper-parameters
  └─mrcnn <br />
 &nbsp;   └── config.py :heart: <br />
 &nbsp;    └── model.py<br />
@@ -44,3 +38,22 @@ one thing should be noticed that your own directories of images and masks should
 &nbsp;    └── __init__.py<br />
 
 most parameters in the config.py, few in the kaggle_wad/train.py
+
+## Detection
+cd into the `kaggle_wad ` directory<br />
+```bash
+cd Mask_RCNN/samples/kaggle_wad
+python3 detect.py
+```
+
+## Evaluate Submission
+Validate the format of submission csv file.
+1. cd into the `submission` directory: 
+	```bash
+	cd submission
+	```
+2. Change the directory of test images and submission file accordingly
+3. Validate the submission file
+	```bash
+	python3 submission_checker.py
+	```	
