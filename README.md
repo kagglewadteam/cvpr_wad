@@ -13,11 +13,11 @@ see https://github.com/matterport/Mask_RCNN#installation
 &nbsp;   └── .ipynb_checkpoints<br />
 &nbsp;    └── balloon<br />
 &nbsp;    └── coco<br />
-&nbsp;    └── kaggle_wad :heart: <br />
+&nbsp;    └── kaggle_wad<br />
 &nbsp;    └── nucleus<br />
 &nbsp;    └── shapes<br />
 
-the files with heart are newly added, kaggle_wad can be copied from my branch. Not neccessary to download the mask_rcnn_coco.h5<br />
+the files with heart are newly added. Not neccessary to download the mask_rcnn_coco.h5<br />
 it can be downloaded automatically.
 
 ## Training
@@ -49,11 +49,11 @@ python3 detect.py
 ## Evaluate Submission
 Validate the format of submission csv file.
 1. cd into the `submission` directory: 
-	```bash
-	cd submission
-	```
+```bash
+cd submission
+```
 2. Change the directory of test images and submission file accordingly
 3. Validate the submission file
-	```bash
-	python3 submission_checker.py
-	```	
+```bash
+python3 submission_checker.py
+```	
